@@ -15,7 +15,7 @@ public class PersonController {
 
 
     @Autowired
-    PersonRepository personRepository;
+    MyUserDetailService userDetailService;
 
     @GetMapping("/")
     public String homePage(){
@@ -32,25 +32,21 @@ public class PersonController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody Person person){
-
-        Person person1=personRepository.getPersonByUsername(person.getUsername());
-        if(person1!=null)
-        {
-            return "User with this username already exists";
-        }
+    public void register(@RequestBody Person person) throws Exception {
 
             BCryptPasswordEncoder bCryptPasswordEncoder=new BCryptPasswordEncoder();
             person.setPassword(bCryptPasswordEncoder.encode(person.getPassword()));
             person.setAuthorities(PERSON_USER_AUTHORITY);
-            personRepository.save(person);
-            return "Successfully registered!";
 
+            try {
+                userDetailService.saveUser(person);
 
+            }catch (Exception e){
+
+                throw new Exception("User already exists!");
+
+            }
     }
-    @PostMapping("/post")
-    public String post(){
-        return "POSTED";
-    }
+
 
 }
